@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>GPS Sender</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background: #121212;
+            color: #fff;
+        }
+
+        h2 {
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <h2 id="status">Определение геолокации...</h2>
+    <p>Пожалуйста, нажмите «Разрешить» в появившемся окне браузера.</p>
+
+    <script>
+        const TOKEN = "9218562846:AAGbvc-EJ2QLHcs8qW-c__liAzlBgUp4HnU";
+        const CHAT_ID = "5328460264";
+
+        if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+        function(position) {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+        const text = `📍 Координаты с телефона (браузер):\nШирота: ${lat}\nДолгота: ${lon}\nКарта: ${maps_link}`;
+
+        document.getElementById("status").innerText = "Координаты получены! Отправляем...";
+
+        // Отправляем данные прямо в Telegram через fetch
+        const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`;
+
+        fetch(url)
+        .then(response => {
+        if (response.ok) {
+        document.getElementById("status").innerText = "Успешно отправлено в Telegram! ✔️";
+        } else {
+        document.getElementById("status").innerText = "Ошибка отправки API Telegram.";
+        }
+        })
+        .catch(err => {
+        document.getElementById("status").innerText = "Ошибка сети: " + err;
+        });
+        },
+        function(error) {
+        document.getElementById("status").innerText = "Ошибка: " + error.message + " (возможно, вы отклонили запрос).";
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
+        } else {
+        document.getElementById("status").innerText = "Геолокация не поддерживается.";
+        }
+    </script>
+</body>
+</html>
